@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LMS - Tasks</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <nav>
     <a href="dashboard.html">Dashboard</a>
@@ -30,6 +32,10 @@
 
     <div class="search-row">
       <input type="text" id="search" placeholder="Search" oninput="render()">
+      <select id="sort" onchange="render()">
+        <option value="date">Sort by Date</option>
+        <option value="priority">Sort by Priority</option>
+      </select>
     </div>
 
     <div class="two-col">
@@ -56,16 +62,16 @@
     user = localStorage.getItem('lms_user');
     if (!user) location.href = 'login.html';
 
-    function getTasks() { 
-      return JSON.parse(localStorage.getItem('lms_tasks') || '[]'); 
+    function getTasks() {
+      return JSON.parse(localStorage.getItem('lms_tasks') || '[]');
     }
 
-    function saveTasks(t) { 
-      localStorage.setItem('lms_tasks', JSON.stringify(t)); 
+    function saveTasks(t) {
+      localStorage.setItem('lms_tasks', JSON.stringify(t));
     }
 
-    function getCourses() { 
-      return JSON.parse(localStorage.getItem('lms_courses') || '[]'); 
+    function getCourses() {
+      return JSON.parse(localStorage.getItem('lms_courses') || '[]');
     }
 
     function addTask() {
@@ -98,8 +104,11 @@
 
     function render() {
       search = document.getElementById('search').value.toLowerCase();
+      sort   = document.getElementById('sort').value;
       tasks = getTasks().filter(t => t.title.toLowerCase().includes(search));
-    
+      if (sort === 'priority') tasks.sort((a,b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      else tasks.sort((a,b) => new Date(a.date) - new Date(b.date));
+
       list = document.getElementById('task-list');
       if (tasks.length === 0) {
         list.innerHTML = '<div class="empty">No tasks found.</div>';
@@ -132,12 +141,12 @@
       saveTasks(tasks); render();
     }
 
-    function escHtml(s) { 
+    function escHtml(s) {
       d = document.createElement('div'); d.textContent = s; return d.innerHTML;
     }
 
-    function logout() { 
-      localStorage.clear(); location.href = 'login.html'; 
+    function logout() {
+      localStorage.clear(); location.href = 'login.html';
     }
 
     render();
