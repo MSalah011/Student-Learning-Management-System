@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS - Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #e8eaf0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .form {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 36px 40px;
+      width: 380px;
+    }
+
+    h2 {
+      font-weight: normal;
+      color: #222;
+      margin-bottom: 18px;
+    }
+
+    input {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      color: #555;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #aaa;
+    }
+
+    input::placeholder {
+      color: #aaa;
+    }
+
+    .error {
+      display: none;
+      color: #c0392b;
+      margin-bottom: 8px;
+    }
+
+    .error.show {
+      display: inline;
+    }
+
+    .bottom-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+    button {
+      padding: 7px 22px;
+      background: #4e5d7a;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #3d4c66;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username" autocomplete="off">
+    <input type="password" id="password" placeholder="Password">
+    <div class="bottom-row">
+      <span class="error" id="error-msg">Invalid login</span>
+      <button onclick="doLogin()">Login</button>
+    </div>
+  </div>
+  <script>
+    if (localStorage.getItem('lms_user')) location.href = 'dashboard.html';
+    function doLogin() {
+      user = document.getElementById('username').value.trim();
+      pass = document.getElementById('password').value;
+      err = document.getElementById('error-msg');
+      if (!user || pass.length < 6) { err.classList.add('show'); return; }
+      err.classList.remove('show');
+      localStorage.setItem('lms_user', user);
+      location.href = 'dashboard.html';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  </script>
+</body>
+
+</html>

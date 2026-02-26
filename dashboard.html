@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS - Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="courses.html">Courses</a>
+    <a href="profile.html">Profile</a>
+    <div class="nav-spacer"></div>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="page">
+    <div class="two-col">
+      <div class="col-left">
+        <div class="card">
+          <div class="card-title">Clock</div>
+          <div class="clock-time" id="clock">--:--:-- --</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Announcements</div>
+          <div class="ann-box" id="ann-text"></div>
+          <button class="btn-next" onclick="nextAnn()">Next</button>
+        </div>
+      </div>
+
+      <div class="col-right">
+        <div class="card">
+          <div class="card-title">Statistics</div>
+          <div class="stat-line">Total Tasks: <span id="stat-total">0</span></div>
+          <div class="stat-line">Completed: <span id="stat-done">0</span></div>
+          <div class="stat-line">Pending: <span id="stat-pending">0</span></div>
+          <div class="stat-line">Courses: <span id="stat-courses">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    user = localStorage.getItem('lms_user');
+    if (!user) location.href = 'login.html';
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    const announcements = [
+      "Welcome to LMS",
+      "This is the second announcement.",
+      "This is the third announcement.",
+      "This is the forth announcement.",
+      "This is the fifth announcement.",
+      "This is the last announcement.",
+    ];
+    let annIdx = 0;
+    function showAnn() { 
+      document.getElementById('ann-text').textContent = announcements[annIdx]; 
+    }
+    function nextAnn() {
+     annIdx = (annIdx + 1) % announcements.length; showAnn(); 
+    }
+    showAnn();
+
+    tasks = JSON.parse(localStorage.getItem('lms_tasks') || '[]');
+    courses = JSON.parse(localStorage.getItem('lms_courses') || '[]');
+    done = tasks.filter(t => t.done).length;
+    document.getElementById('stat-total').textContent = tasks.length;
+    document.getElementById('stat-done').textContent = done;
+    document.getElementById('stat-pending').textContent = tasks.length - done;
+    document.getElementById('stat-courses').textContent = courses.length;
+
+    function logout() { 
+      localStorage.clear(); location.href = 'login.html'; 
+    }
+  </script>
+</body>
+</html>

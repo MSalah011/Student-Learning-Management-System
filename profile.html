@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS - Profile</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .card {
+      max-width: 340px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="tasks.html">Tasks</a>
+    <a href="courses.html">Courses</a>
+    <a href="profile.html" class="active">Profile</a>
+    <div class="nav-spacer"></div>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="page">
+    <h2>Profile</h2>
+    <div class="card">
+      <div class="card-title">Update Username</div>
+      <input type="text" id="new-username" placeholder="Username">
+      <button class="btn-update" onclick="saveProfile()">Update</button>
+    </div>
+  </div>
+
+  <script>
+    user = localStorage.getItem('lms_user');
+    if (!user) location.href = 'login.html';
+    document.getElementById('new-username').value = user;
+
+    function saveProfile() {
+      val = document.getElementById('new-username').value.trim();
+      if (!val) { alert('Username cannot be empty.'); return; }
+      localStorage.setItem('lms_user', val);
+      alert('Username updated!');
+    }
+
+    function logout() { 
+      localStorage.clear(); location.href = 'login.html'; 
+    }
+  </script>
+</body>
+
+</html>

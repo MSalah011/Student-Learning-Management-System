@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LMS - Tasks</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="tasks.html" class="active">Tasks</a>
+    <a href="courses.html">Courses</a>
+    <a href="profile.html">Profile</a>
+    <div class="nav-spacer"></div>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="page">
+    <div class="add-row">
+      <input type="text" id="task-title" placeholder="Title">
+      <input type="date" id="task-date">
+      <select id="task-priority">
+        <option value="High">High</option>
+        <option value="Medium" selected>Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <button class="btn-add" onclick="addTask()">Add</button>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="search" placeholder="Search" oninput="render()">
+    </div>
+
+    <div class="two-col">
+      <div class="col-left">
+        <div class="card">
+          <div class="card-title">Tasks</div>
+          <div id="task-list"></div>
+        </div>
+      </div>
+
+      <div class="col-right">
+        <div class="card">
+          <div class="card-title">Statistics</div>
+          <div class="stat-line">Total Tasks: <span id="stat-total">0</span></div>
+          <div class="stat-line">Completed: <span id="stat-done">0</span></div>
+          <div class="stat-line">Pending: <span id="stat-pending">0</span></div>
+          <div class="stat-line">Courses: <span id="stat-courses">0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    user = localStorage.getItem('lms_user');
+    if (!user) location.href = 'login.html';
+
+    function getTasks() { 
+      return JSON.parse(localStorage.getItem('lms_tasks') || '[]'); 
+    }
+
+    function saveTasks(t) { 
+      localStorage.setItem('lms_tasks', JSON.stringify(t)); 
+    }
+
+    function getCourses() { 
+      return JSON.parse(localStorage.getItem('lms_courses') || '[]'); 
+    }
+
+    function addTask() {
+      title = document.getElementById('task-title').value.trim();
+      date = document.getElementById('task-date').value;
+      priority = document.getElementById('task-priority').value;
+      if (!title || !date) { alert('Please fill in title and due date.'); return; }
+      tasks = getTasks();
+      tasks.push({ id: Date.now(), title, date, priority, done: false });
+      saveTasks(tasks);
+      document.getElementById('task-title').value = '';
+      document.getElementById('task-date').value = '';
+      render();
+    }
+
+    function deleteTask(id) {
+      if (!confirm('Delete this task?')) return;
+      saveTasks(getTasks().filter(t => t.id !== id));
+      render();
+    }
+
+    function toggleDone(id) {
+      tasks = getTasks();
+      t = tasks.find(t => t.id === id);
+      if (t) t.done = !t.done;
+      saveTasks(tasks); render();
+    }
+
+    priorityOrder = { High: 0, Medium: 1, Low: 2 };
+
+    function render() {
+      search = document.getElementById('search').value.toLowerCase();
+      tasks = getTasks().filter(t => t.title.toLowerCase().includes(search));
+    
+      list = document.getElementById('task-list');
+      if (tasks.length === 0) {
+        list.innerHTML = '<div class="empty">No tasks found.</div>';
+      } else {
+        list.innerHTML = tasks.map(t => `
+        <div class="task-item ${t.done ? 'done' : ''}">
+          <span class="task-label">${escHtml(t.title)} – ${t.priority}, ${t.date}</span>
+          ${!t.done ? `<button class="btn-sm btn-edit" onclick="editTask(${t.id})">Edit</button>` : ''}
+          <button class="btn-sm btn-delete"   onclick="deleteTask(${t.id})">Delete</button>
+          <button class="btn-sm btn-complete" onclick="toggleDone(${t.id})">${t.done ? 'Undo' : 'Mark Complete'}</button>
+        </div>
+      `).join('');
+      }
+
+      all = getTasks();
+      done = all.filter(t => t.done).length;
+      document.getElementById('stat-total').textContent = all.length;
+      document.getElementById('stat-done').textContent = done;
+      document.getElementById('stat-pending').textContent = all.length - done;
+      document.getElementById('stat-courses').textContent = getCourses().length;
+    }
+
+    function editTask(id) {
+      tasks = getTasks();
+      t = tasks.find(t => t.id === id);
+      if (!t) return;
+      newTitle = prompt('Edit title:', t.title);
+      if (newTitle === null) return;
+      t.title = newTitle.trim() || t.title;
+      saveTasks(tasks); render();
+    }
+
+    function escHtml(s) { 
+      d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+    }
+
+    function logout() { 
+      localStorage.clear(); location.href = 'login.html'; 
+    }
+
+    render();
+  </script>
+</body>
+
+</html>
